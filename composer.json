@@ -1,0 +1,17 @@
+{
+    "name": "bouledepate/caffy-api",
+    "description": "API for mobile application",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Bouledepate\\CaffyApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Semyon \"Hertsen\" Shmik",
+            "email": "promtheus815@gmail.com"
+        }
+    ],
+    "require": {}
+}
