@@ -1,7 +1,11 @@
 {
     "name": "bouledepate/caffy-api",
-    "description": "API for mobile application",
+    "description": "Caffy API",
     "type": "project",
+    "require": {
+        "yiisoft/yii2": "^2.0",
+        "vlucas/phpdotenv": "^5.4"
+    },
     "autoload": {
         "psr-4": {
             "Bouledepate\\CaffyApi\\": "src/"
@@ -9,9 +13,19 @@
     },
     "authors": [
         {
-            "name": "Semyon \"Hertsen\" Shmik",
+            "name": "Semyon Shmik",
             "email": "promtheus815@gmail.com"
         }
     ],
-    "require": {}
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
 }
