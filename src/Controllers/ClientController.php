@@ -45,8 +45,11 @@ class ClientController extends Controller
         $model = new Member();
         $model->setAttributes(\Yii::$app->request->getBodyParams());
         if ($model->validate()) {
-            $model->save(false);
-            \Yii::$app->response->setStatusCode(201);
+            if ($model->save(false)) {
+                return ['success' => true];
+            } else {
+                return ['success' => false];
+            }
         } else {
             \Yii::$app->response->setStatusCode(422);
             return $model->getFirstErrors();
