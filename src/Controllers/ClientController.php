@@ -7,6 +7,7 @@ use yii\filters\VerbFilter;
 use yii\rest\Controller;
 use yii\rest\OptionsAction;
 use yii\web\NotFoundHttpException;
+use yii\web\UnprocessableEntityHttpException;
 
 class ClientController extends Controller
 {
@@ -64,7 +65,11 @@ class ClientController extends Controller
         }
         $model = $this->identifyUser($uuid);
         $result = $model->join(\Yii::$app->request->getBodyParam('code'));
-        return ['success' => $result];
+        if ($result) {
+            return ['success' => $result];
+        } else {
+            throw new UnprocessableEntityHttpException("Передан неверный код приглашения");
+        }
     }
 
     public function actionLeft(): array
