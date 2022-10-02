@@ -2,6 +2,7 @@
 
 namespace Bouledepate\CaffyApi\Controllers;
 
+use Bouledepate\CaffyApi\Models\Bill;
 use Bouledepate\CaffyApi\Models\Member;
 use yii\filters\VerbFilter;
 use yii\rest\Controller;
@@ -66,7 +67,12 @@ class ClientController extends Controller
         $model = $this->identifyUser($uuid);
         $result = $model->join(\Yii::$app->request->getBodyParam('code'));
         if ($result) {
-            return ['success' => $result];
+            $bill = Bill::currentByUuid($model->uuid);
+            return [
+                'success' => true,
+                'title' => $bill->title,
+                'owner' => $bill->owner->username
+            ];
         } else {
             throw new UnprocessableEntityHttpException("Передан неверный код приглашения");
         }
