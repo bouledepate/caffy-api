@@ -9,6 +9,7 @@ use yii\rest\Controller;
 use yii\rest\OptionsAction;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 
 class ClientController extends Controller
@@ -63,10 +64,10 @@ class ClientController extends Controller
     public function actionJoin(): array
     {
         $uuid = \Yii::$app->request->getBodyParam('uuid');
-        if (is_null($uuid)) {
+        $model = $this->identifyUser($uuid);
+        if (is_null($uuid) || is_null($model)) {
             return $this->handleInvalidUuid();
         }
-        $model = $this->identifyUser($uuid);
         $result = $model->join(\Yii::$app->request->getBodyParam('code'));
         if ($result) {
             $bill = Bill::currentByUuid($model->uuid);
@@ -83,10 +84,10 @@ class ClientController extends Controller
     public function actionLeft(): array
     {
         $uuid = \Yii::$app->request->getBodyParam('uuid');
-        if (is_null($uuid)) {
+        $model = $this->identifyUser($uuid);
+        if (is_null($uuid) || is_null($model)) {
             $this->handleInvalidUuid();
         }
-        $model = $this->identifyUser($uuid);
         $result = $model->left();
         return ['success' => $result];
     }
@@ -94,10 +95,10 @@ class ClientController extends Controller
     public function actionCurrentBill(): array
     {
         $uuid = \Yii::$app->request->getBodyParam('uuid');
-        if (is_null($uuid)) {
+        $user = $this->identifyUser($uuid);
+        if (is_null($uuid) || is_null($user)) {
             $this->handleInvalidUuid();
         }
-        $user = $this->identifyUser($uuid);
         $bill = Bill::currentByUuid($uuid);
         if (!is_null($bill)) {
             $code = $bill->getInviteCode($uuid);
@@ -119,6 +120,6 @@ class ClientController extends Controller
 
     private function handleInvalidUuid()
     {
-       throw new ForbiddenHttpException('Передан некорректный UUID');
+       throw new UnauthorizedHttpException('Передан некорректный UUID');
     }
 }
