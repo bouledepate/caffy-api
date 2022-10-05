@@ -6,4 +6,5 @@ return [
     'POST /client/sign-in' => 'client/sign-in',
     'POST /client/join' => 'client/join',
     'POST /client/left' => 'client/left',
+    'POST /client/bill' => 'client/current-bill'
 ];

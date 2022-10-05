@@ -7,6 +7,7 @@ use Bouledepate\CaffyApi\Models\Member;
 use yii\filters\VerbFilter;
 use yii\rest\Controller;
 use yii\rest\OptionsAction;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 
@@ -19,7 +20,8 @@ class ClientController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'sign-in' => ['POST'],
-                    'index' => ['GET']
+                    'index' => ['GET'],
+                    'current-bill' => ['POST']
                 ]
             ]
         ];
@@ -82,11 +84,30 @@ class ClientController extends Controller
     {
         $uuid = \Yii::$app->request->getBodyParam('uuid');
         if (is_null($uuid)) {
-            return $this->handleInvalidUuid();
+            $this->handleInvalidUuid();
         }
         $model = $this->identifyUser($uuid);
         $result = $model->left();
         return ['success' => $result];
+    }
+
+    public function actionCurrentBill(): array
+    {
+        $uuid = \Yii::$app->request->getBodyParam('uuid');
+        if (is_null($uuid)) {
+            $this->handleInvalidUuid();
+        }
+        $user = $this->identifyUser($uuid);
+        $bill = Bill::currentByUuid($uuid);
+        $code = $bill->getInviteCode($uuid);
+
+        return [
+            'success' => true,
+            'is_owner' => $user->id === $bill->owner_id,
+            'title' => $bill->title,
+            'owner' => $bill->owner->username,
+            'code' => $code
+        ];
     }
 
     private function identifyUser(string $uuid): ?Member
@@ -96,9 +117,6 @@ class ClientController extends Controller
 
     private function handleInvalidUuid()
     {
-        \Yii::$app->response->setStatusCode(401);
-        return [
-            'uuid' => 'Ошибка идентификации. Передано некорректное значение UUID.'
-        ];
+       throw new ForbiddenHttpException('Передан некорректный UUID');
     }
 }
