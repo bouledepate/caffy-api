@@ -99,14 +99,16 @@ class ClientController extends Controller
         }
         $user = $this->identifyUser($uuid);
         $bill = Bill::currentByUuid($uuid);
-        $code = $bill->getInviteCode($uuid);
+        if (!is_null($bill)) {
+            $code = $bill->getInviteCode($uuid);
+        }
 
         return [
-            'success' => true,
-            'is_owner' => $user->id === $bill->owner_id,
-            'title' => $bill->title,
-            'owner' => $bill->owner->username,
-            'code' => $code
+            'exist' => !is_null($bill),
+            'is_owner' => $user->id === $bill->owner_id ?? false,
+            'title' => $bill->title ?? null,
+            'owner' => $bill->owner->username ?? null,
+            'code' => $code ?? null
         ];
     }
 
