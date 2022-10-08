@@ -217,4 +217,17 @@ class Bill extends ActiveRecord implements BillInterface
             return false;
         }
     }
+
+    public function getBillMembers(): array
+    {
+        $data = [];
+        /** @var Member $member */
+        foreach ($this->members as $member) {
+            $data[] = [
+                'username' => $member->username,
+                'dishes' => $member->getDishes()
+            ];
+        }
+        return $data;
+    }
 }

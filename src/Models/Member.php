@@ -29,6 +29,43 @@ class Member extends ActiveRecord implements MemberInterface
             ->viaTable('bill_member', ['member_id' => 'id']);
     }
 
+    public function getBillsAsArray()
+    {
+        $ownBills = [];
+        $guestBills = [];
+
+        /** @var Bill $bill */
+        foreach ($this->getBills()->orderBy(['created_at' => SORT_DESC])->all() as $bill) {
+            if ($bill->owner_id === $this->id) {
+                $ownBills[] = [
+                    'id' => $bill->id,
+                    'title' => $bill->title,
+                    'owner' => $this->username,
+                    'created_at' => $bill->created_at,
+                    'closed' => $bill->is_closed
+                ];
+            } else {
+                $guestBills[] = [
+                    'id' => $bill->id,
+                    'title' => $bill->title,
+                    'owner' => $bill->owner->username,
+                    'created_at' => $bill->created_at,
+                    'closed' => $bill->is_closed
+                ];
+            }
+        }
+
+        return [
+            'own_bills' => $ownBills,
+            'guest_bills' => $guestBills
+        ];
+    }
+
+    public function getDishes(): array
+    {
+        return [];
+    }
+
     public function join(?string $code): bool
     {
         if (!$this->hasActiveBill()) {
