@@ -4,6 +4,7 @@ namespace Bouledepate\CaffyApi\Models;
 
 use Bouledepate\CaffyApi\Interfaces\MemberInterface;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 
 /**
  * @property int $id
@@ -63,9 +64,27 @@ class Member extends ActiveRecord implements MemberInterface
         ];
     }
 
-    public function getDishes(): array
+    public function getDishes(int $bill, $includeCommon = false, $forHistory = false): array
     {
-        return [];
+        $relationId = (new Query())->select('id')->from('bill_member')->where([
+            'bill_id' => $bill,
+            'member_id' => $this->id
+        ])->one()['id'];
+        $data[Dish::TYPE_PERSONAL] = Dish::findAll(['bill_member_id' => $relationId, 'type' => Dish::TYPE_PERSONAL]);
+        if ($forHistory) {
+            $result = [];
+            foreach ($data[Dish::TYPE_PERSONAL] as $datum) {
+                $result[] = [
+                    'title' => $datum->title,
+                    'cost' => $datum->cost
+                ];
+            }
+            $data[Dish::TYPE_PERSONAL] = $result;
+        }
+        if ($includeCommon) {
+            $data[Dish::TYPE_COMMON] = Dish::findAll(['bill_member_id' => $relationId, 'type' => Dish::TYPE_COMMON]);
+        }
+        return $data;
     }
 
     public function join(?string $code): bool

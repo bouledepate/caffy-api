@@ -2,6 +2,7 @@
 
 namespace Bouledepate\CaffyApi\Controllers;
 
+use Bouledepate\CaffyApi\Forms\DishesForm;
 use Bouledepate\CaffyApi\Models\Bill;
 use yii\filters\VerbFilter;
 use yii\rest\Controller;

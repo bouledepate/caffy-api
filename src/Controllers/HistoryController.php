@@ -18,6 +18,7 @@ class HistoryController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'all' => ['POST'],
+                    'detail' => ['POST']
                 ]
             ]
         ];
@@ -53,18 +54,6 @@ class HistoryController extends Controller
         $model->setAttributes(\Yii::$app->request->getBodyParams());
         if ($model->validate()) {
             $data = $model->detailHistory();
-        } else {
-            $data = null;
-        }
-        if (is_null($data)) {
-            $data = [
-                'id' => null,
-                'title' => null,
-                'owner' => null,
-                'total' => rand(1000, 3000),
-                'dishes' => [],
-                'members' => []
-            ];
         }
         return $data;
     }

@@ -4,5 +4,6 @@ return array_merge(
     require 'default.php',
     require 'bill.php',
     require 'client.php',
-    require 'history.php'
+    require 'history.php',
+    require 'dish.php'
 );

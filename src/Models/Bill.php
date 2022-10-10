@@ -15,6 +15,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $title
  * @property bool $is_closed
  * @property int $created_at
+ * @property Member $owner
  */
 class Bill extends ActiveRecord implements BillInterface
 {
@@ -25,6 +26,11 @@ class Bill extends ActiveRecord implements BillInterface
     public ?string $clientCode = null;
 
     public const SCENARIO_OPEN = 'open';
+
+    private ?Member $_currentUser = null;
+    private array $_currentUserDishes = [];
+    private array $_commonDishes = [];
+    private array $_billMembers = [];
 
     public function behaviors(): array
     {
@@ -220,14 +226,114 @@ class Bill extends ActiveRecord implements BillInterface
 
     public function getBillMembers(): array
     {
-        $data = [];
+        $result = [];
         /** @var Member $member */
-        foreach ($this->members as $member) {
-            $data[] = [
-                'username' => $member->username,
-                'dishes' => $member->getDishes()
+        foreach ($this->_billMembers as $member) {
+            if ($member->uuid !== $this->_currentUser->uuid) {
+                $result[] = [
+                    'username' => $member->username,
+                    'owner' => $this->owner->uuid === $member->uuid,
+                    'dishes' => $member->getDishes($this->id, false, true)[Dish::TYPE_PERSONAL],
+                    'per_person_amount' => $this->getPerPersonAmount($member),
+                    'personal_amount' => $this->getPersonalAmount($member)
+                ];
+            }
+        }
+        return $result;
+    }
+
+
+    public function getPersonalDishes(): array
+    {
+        $result = [];
+        /** @var Dish $dish */
+        foreach ($this->_currentUserDishes as $dish) {
+            $result[] = [
+                'title' => $dish->title,
+                'cost' => $dish->cost
             ];
         }
+        return $result;
+    }
+
+    public function getCommonDishes(bool $forHistory = false)
+    {
+        $data =  $this->owner->getDishes($this->id, true)[Dish::TYPE_COMMON];
+        if ($forHistory) {
+            $result = [];
+            foreach ($data as $datum) {
+                $result[] = [
+                    'title' => $datum->title,
+                    'cost' => $datum->cost
+                ];
+            }
+            $data = $result;
+        }
         return $data;
+    }
+
+    public function getAmountInfo(string $uuid)
+    {
+        $this->_currentUser = Bill::getUserInfo($uuid);
+        $this->prepareData($this->_currentUser);
+
+        return [
+            'total' => $this->getTotalAmount(),
+            'per_person' => $this->getPerPersonAmount(),
+            'common' => $this->getCommonAmount(),
+            'personal' => $this->getPersonalAmount()
+        ];
+    }
+
+    private function prepareData(Member $member)
+    {
+        $this->_currentUserDishes = $member->getDishes($this->id)[Dish::TYPE_PERSONAL];
+        $this->_commonDishes = $this->owner->getDishes($this->id, true)[Dish::TYPE_COMMON];
+        $this->_billMembers = $this->members;
+    }
+
+    private function getTotalAmount(): float
+    {
+        $amount = 0;
+        /** @var Member $member */
+        foreach ($this->_billMembers as $member) {
+            $amount += $this->getPerPersonAmount($member);
+        }
+        return $amount;
+    }
+
+    private function getPerPersonAmount(Member $member = null): float
+    {
+        $commonAmount = $this->getCommonAmount();
+        $personalAmount = $this->getPersonalAmount($member);
+        $partOfCommonAmount = round($commonAmount / $this->getCountOfBillMembers());
+        return $personalAmount + $partOfCommonAmount;
+    }
+
+    private function getCommonAmount(): float
+    {
+        $amount = 0;
+        /** @var Dish $dish */
+        foreach ($this->_commonDishes as $dish) {
+            $amount += $dish->cost;
+        }
+        return $amount;
+    }
+
+    private function getPersonalAmount(Member $member = null): float
+    {
+        $amount = 0;
+        $dishes = is_null($member)
+            ? $this->_currentUserDishes
+            : $member->getDishes($this->id)[Dish::TYPE_PERSONAL];
+        /** @var Dish $dish */
+        foreach ($dishes as $dish) {
+            $amount += $dish->cost;
+        }
+        return $amount;
+    }
+    private function getCountOfBillMembers(): int
+    {
+        return count($this->_billMembers);
     }
 }

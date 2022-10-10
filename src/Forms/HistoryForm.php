@@ -41,17 +41,17 @@ class HistoryForm extends Model
     public function detailHistory(): array
     {
         $bill = Bill::findOne(['id' => $this->bill]);
-        if (!is_null($bill)) {
-            $data = [
-                'id' => $bill->id,
-                'title' => $bill->title,
-                'owner' => $bill->owner->username,
-                'total' => rand(1000, 3000),
-                'dishes' => [],
-                'members' => $bill->getBillMembers()
-            ];
-        }
-        return $data ?? [];
+        $detail = [
+            'id' => $bill->id,
+            'title' => $bill->title,
+            'owner' => $bill->owner->username,
+            'created_at' => $bill->created_at,
+            'amount' => $bill->getAmountInfo($this->uuid),
+            'common_dishes' => $bill->getCommonDishes(true),
+            'personal_dishes' => $bill->getPersonalDishes(),
+            'members' => $bill->getBillMembers()
+        ];
+        return $detail;
     }
 
     public function afterValidate()
