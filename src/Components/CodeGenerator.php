@@ -8,6 +8,6 @@ class CodeGenerator
 
     public static function generate(): string
     {
-        return substr(str_shuffle(self::CHARS), 0, 8);
+        return substr(str_shuffle(self::CHARS), 0, 5);
     }
 }
