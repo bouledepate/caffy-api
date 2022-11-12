@@ -8,7 +8,7 @@ interface BillInterface
 
     public function validateInviteCode(string $code);
 
-    public function open(): bool;
+    public function open(): array;
 
     public function close();
 

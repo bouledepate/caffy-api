@@ -37,9 +37,10 @@ class BillController extends Controller
         $model->setScenario(Bill::SCENARIO_OPEN);
         $model->setAttributes(\Yii::$app->request->getBodyParams());
         if ($model->validate()) {
-            if ($model->open()) {
+            $result = $model->open();
+            if ($result['success']) {
                 return [
-                    'id' => $model->id,
+                    'id' => $result['bill_id'],
                     'code' => $model->getInviteCode()
                 ];
             }

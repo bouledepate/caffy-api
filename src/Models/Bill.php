@@ -105,7 +105,7 @@ class Bill extends ActiveRecord implements BillInterface
         return $currentCode === $code;
     }
 
-    public function open(): bool
+    public function open(): array
     {
         /** @var Member $user */
         $user = self::getUserInfo($this->uuid);
@@ -117,7 +117,10 @@ class Bill extends ActiveRecord implements BillInterface
                 if ($model) {
                     $this->createInviteCode($model->id);
                     $this->linkModel($user, $model->id);
-                    return true;
+                    return [
+                        'success' => true,
+                        'bill_id' => $model->id
+                    ];
                 } else {
                     $this->addError('uuid', 'Не удалось открыть счёт по данному UUID.');
                 }
@@ -127,7 +130,10 @@ class Bill extends ActiveRecord implements BillInterface
         } else {
             $this->addError('uuid', 'Пользователь в системе не найден с данным UUID.');
         }
-        return false;
+        return [
+            'success' => false,
+            'bill_id' => null
+        ];
     }
 
     public function close(): bool
