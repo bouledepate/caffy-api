@@ -255,6 +255,7 @@ class Bill extends ActiveRecord implements BillInterface
         /** @var Dish $dish */
         foreach ($this->_currentUserDishes as $dish) {
             $result[] = [
+                'id' => $dish->id,
                 'title' => $dish->title,
                 'cost' => $dish->cost
             ];
@@ -269,6 +270,7 @@ class Bill extends ActiveRecord implements BillInterface
             $result = [];
             foreach ($data as $datum) {
                 $result[] = [
+                    'id' => $datum->id,
                     'title' => $datum->title,
                     'cost' => $datum->cost
                 ];
