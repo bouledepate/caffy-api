@@ -106,6 +106,7 @@ class ClientController extends Controller
 
         return [
             'exist' => !is_null($bill),
+            'id' => $bill->id,
             'is_owner' => $user->id === $bill->owner_id ?? false,
             'title' => $bill->title ?? null,
             'owner' => $bill->owner->username ?? null,
