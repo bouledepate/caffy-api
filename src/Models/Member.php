@@ -42,7 +42,7 @@ class Member extends ActiveRecord implements MemberInterface
                     'id' => $bill->id,
                     'title' => $bill->title,
                     'owner' => $this->username,
-                    'amount' => rand(2000, 4000),
+                    'amount' => $bill->getAmountInfo($this->uuid),
                     'created_at' => $bill->created_at,
                     'closed' => $bill->is_closed
                 ];
@@ -51,7 +51,7 @@ class Member extends ActiveRecord implements MemberInterface
                     'id' => $bill->id,
                     'title' => $bill->title,
                     'owner' => $bill->owner->username,
-                    'amount' => rand(2000, 4000),
+                    'amount' => $bill->getAmountInfo($this->uuid),
                     'created_at' => $bill->created_at,
                     'closed' => $bill->is_closed
                 ];
