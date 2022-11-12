@@ -39,6 +39,7 @@ class BillController extends Controller
         if ($model->validate()) {
             if ($model->open()) {
                 return [
+                    'id' => $model->id,
                     'code' => $model->getInviteCode()
                 ];
             }
