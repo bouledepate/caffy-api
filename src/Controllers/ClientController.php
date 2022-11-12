@@ -73,6 +73,7 @@ class ClientController extends Controller
             $bill = Bill::currentByUuid($model->uuid);
             return [
                 'success' => true,
+                'id' => $bill->id,
                 'title' => $bill->title,
                 'owner' => $bill->owner->username
             ];
