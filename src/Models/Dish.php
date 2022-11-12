@@ -17,6 +17,7 @@ class Dish extends ActiveRecord
 {
     public string $uuid = '';
     public int $bill = 0;
+    public bool $common = false;
 
     public const TYPE_PERSONAL = 'personal';
     public const TYPE_COMMON = 'common';
@@ -25,8 +26,8 @@ class Dish extends ActiveRecord
     {
         return [
             [['title', 'cost', 'uuid', 'bill'], 'required'],
-            [['title', 'type'], 'string'],
-            ['bill_member_id', 'safe']
+            [['title'], 'string'],
+            [['bill_member_id', 'common'], 'safe']
         ];
     }
 
@@ -36,6 +37,7 @@ class Dish extends ActiveRecord
             return false;
         }
         $this->defineRelationId();
+        $this->type = $this->common ? self::TYPE_COMMON : self::TYPE_PERSONAL;
         return true;
     }
 
