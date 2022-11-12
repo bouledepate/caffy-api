@@ -105,14 +105,27 @@ class ClientController extends Controller
             $code = $bill->getInviteCode($uuid);
         }
 
-        return [
-            'exist' => !is_null($bill),
-            'id' => $bill->id ?? null,
-            'is_owner' => $user->id === $bill->owner_id ?? false,
-            'title' => $bill->title ?? null,
-            'owner' => $bill->owner->username ?? null,
-            'code' => $code ?? null
-        ];
+        if (is_null($bill)) {
+            $response = [
+                'exist' => false,
+                'id' => null,
+                'is_owner' => false,
+                'title' => null,
+                'owner' => null,
+                'code' => null
+            ];
+        } else {
+            $response = [
+                'exist' => !is_null($bill),
+                'id' => $bill->id ?? null,
+                'is_owner' => $user->id === $bill->owner_id ?? false,
+                'title' => $bill->title ?? null,
+                'owner' => $bill->owner->username ?? null,
+                'code' => $code ?? null
+            ];
+        }
+
+        return $response;
     }
 
     private function identifyUser(string $uuid): ?Member
@@ -122,6 +135,6 @@ class ClientController extends Controller
 
     private function handleInvalidUuid()
     {
-       throw new UnauthorizedHttpException('Передан некорректный UUID');
+        throw new UnauthorizedHttpException('Передан некорректный UUID');
     }
 }
