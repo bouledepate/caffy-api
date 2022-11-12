@@ -45,6 +45,7 @@ class HistoryForm extends Model
             'id' => $bill->id,
             'title' => $bill->title,
             'owner' => $bill->owner->username,
+            'closed' => $bill->is_closed,
             'created_at' => $bill->created_at,
             'amount' => $bill->getAmountInfo($this->uuid),
             'common_dishes' => $bill->getCommonDishes(true),
