@@ -2,5 +2,5 @@
 
 return [
     'POST /bill/dishes/add' => 'dish/add',
-    'GET /bill/dishes/remove/<id>' => 'dish/remove'
+    'POST /bill/dishes/remove' => 'dish/remove'
 ];

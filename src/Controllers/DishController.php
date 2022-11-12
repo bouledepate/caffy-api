@@ -41,8 +41,9 @@ class DishController extends Controller
         }
     }
 
-    public function actionRemove(int $id)
+    public function actionRemove()
     {
+        $id = \Yii::$app->request->getBodyParam('id');
         $model = Dish::findOne(['id' => $id]);
         $response = ['success' => true];
         if (is_null($model)) {
