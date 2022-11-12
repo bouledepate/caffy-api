@@ -116,7 +116,7 @@ class ClientController extends Controller
             ];
         } else {
             $response = [
-                'exist' => !is_null($bill),
+                'exist' => true,
                 'id' => $bill->id ?? null,
                 'is_owner' => $user->id === $bill->owner_id ?? false,
                 'title' => $bill->title ?? null,
