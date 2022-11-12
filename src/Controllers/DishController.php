@@ -17,7 +17,7 @@ class DishController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'add' => ['POST'],
-                    'remove' => ['GET']
+                    'remove' => ['POST']
                 ]
             ]
         ];
