@@ -121,7 +121,8 @@ class Bill extends ActiveRecord implements BillInterface
                         'success' => true,
                         'bill_id' => $model->id,
                         'bill_title' => $model->title,
-                        'bill_owner' => $model->owner->username
+                        'bill_owner' => $model->owner->username,
+                        'bill_is_owner' => true
                     ];
                 } else {
                     $this->addError('uuid', 'Не удалось открыть счёт по данному UUID.');

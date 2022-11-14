@@ -76,7 +76,8 @@ class ClientController extends Controller
                 'id' => $bill->id,
                 'title' => $bill->title,
                 'owner' => $bill->owner->username,
-                'code' => $bill->getInviteCode()
+                'code' => $bill->getInviteCode(),
+                'is_owner' => false
             ];
         } else {
             throw new UnprocessableEntityHttpException("Передан неверный код приглашения");
