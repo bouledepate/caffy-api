@@ -40,7 +40,7 @@ class BillController extends Controller
             $result = $model->open();
             if ($result['success']) {
                 return [
-                    'exist' => $result['success'],
+                    'success' => $result['success'],
                     'id' => $result['bill_id'],
                     'title' => $result['bill_title'],
                     'owner' => $result['bill_owner'],
