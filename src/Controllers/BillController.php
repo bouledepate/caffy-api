@@ -41,6 +41,8 @@ class BillController extends Controller
             if ($result['success']) {
                 return [
                     'id' => $result['bill_id'],
+                    'title' => $result['bill_title'],
+                    'owner' => $result['bill_owner'],
                     'code' => $model->getInviteCode()
                 ];
             }

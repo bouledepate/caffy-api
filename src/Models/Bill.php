@@ -119,7 +119,9 @@ class Bill extends ActiveRecord implements BillInterface
                     $this->linkModel($user, $model->id);
                     return [
                         'success' => true,
-                        'bill_id' => $model->id
+                        'bill_id' => $model->id,
+                        'bill_title' => $model->title,
+                        'bill_owner' => $model->owner->username
                     ];
                 } else {
                     $this->addError('uuid', 'Не удалось открыть счёт по данному UUID.');
@@ -132,7 +134,9 @@ class Bill extends ActiveRecord implements BillInterface
         }
         return [
             'success' => false,
-            'bill_id' => null
+            'bill_id' => null,
+            'bill_title' => null,
+            'bill_owner' => null
         ];
     }
 
