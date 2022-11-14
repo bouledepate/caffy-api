@@ -76,7 +76,7 @@ class ClientController extends Controller
                 'id' => $bill->id,
                 'title' => $bill->title,
                 'owner' => $bill->owner->username,
-                'code' => $bill->getInviteCode(),
+                'code' => $bill->getInviteCode($bill->owner->uuid),
                 'is_owner' => false
             ];
         } else {
