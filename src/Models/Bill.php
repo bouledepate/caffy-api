@@ -332,7 +332,14 @@ class Bill extends ActiveRecord implements BillInterface
             $refused = RefusedDish::isRefused($dish->id, $member->id ?? $this->_currentUser->id);
             if (is_null($refused)) $refused = false;
             if (!$refused) {
-                $common += $dish->cost;
+                $billMembers = count($this->_billMembers);
+                foreach ($this->_billMembers as $billMember) {
+                    $memberRefusedState = RefusedDish::isRefused($dish->id, $billMember->id);
+                    if ($memberRefusedState) {
+                        $billMembers -= 1;
+                    }
+                }
+                $common += $dish->cost / $billMembers;
             }
         }
 
