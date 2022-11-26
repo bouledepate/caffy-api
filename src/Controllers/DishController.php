@@ -3,6 +3,7 @@
 namespace Bouledepate\CaffyApi\Controllers;
 
 use Bouledepate\CaffyApi\Models\Dish;
+use yii\db\StaleObjectException;
 use yii\filters\VerbFilter;
 use yii\rest\OptionsAction;
 use yii\rest\Controller;
@@ -17,7 +18,8 @@ class DishController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'add' => ['POST'],
-                    'remove' => ['POST']
+                    'remove' => ['POST'],
+                    'refuse' => ['POST']
                 ]
             ]
         ];
@@ -52,5 +54,28 @@ class DishController extends Controller
         return [
             'success' => (bool)$model->delete()
         ];
+    }
+
+    /**
+     * @throws StaleObjectException
+     * @throws \Throwable
+     * @throws BadRequestHttpException
+     */
+    public function actionRefuse(): array
+    {
+        $id = \Yii::$app->request->getBodyParam('dish');
+        $model = Dish::findOne(['id' => $id]);
+        $model->uuid = \Yii::$app->request->getBodyParam('uuid');
+        $response = ['success' => false];
+        if (is_null($model)) {
+            return $response;
+        }
+        if ($model->validate()) {
+            $model->toggleRefusedProperty();
+            $response['success'] = true;
+            return $response;
+        } else {
+            throw new BadRequestHttpException("Невозможно изменить статус блюда.");
+        }
     }
 }

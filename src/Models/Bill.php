@@ -270,7 +270,7 @@ class Bill extends ActiveRecord implements BillInterface
 
     public function getCommonDishes(bool $forHistory = false)
     {
-        $data =  $this->owner->getDishes($this->id, true)[Dish::TYPE_COMMON];
+        $data = $this->owner->getDishes($this->id, true)[Dish::TYPE_COMMON];
         if ($forHistory) {
             $result = [];
             foreach ($data as $datum) {
@@ -285,7 +285,22 @@ class Bill extends ActiveRecord implements BillInterface
         return $data;
     }
 
-    public function getAmountInfo(string $uuid)
+
+    private function prepareData(Member $member)
+    {
+        $this->_currentUserDishes = $member->getDishes($this->id)[Dish::TYPE_PERSONAL];
+        $this->_commonDishes = $this->owner->getDishes($this->id, true)[Dish::TYPE_COMMON];
+        $this->_billMembers = $this->members;
+    }
+
+    /**
+     * Returns amounts array by person for detail history.
+     * Contains total bill price, person price with common part,
+     * common dishes price and personal dishes price.
+     * @param string $uuid
+     * @return void
+     */
+    public function getAmountInfo(string $uuid): array
     {
         $this->_currentUser = Bill::getUserInfo($uuid);
         $this->prepareData($this->_currentUser);
@@ -296,13 +311,6 @@ class Bill extends ActiveRecord implements BillInterface
             'common' => $this->getCommonAmount(),
             'personal' => $this->getPersonalAmount()
         ];
-    }
-
-    private function prepareData(Member $member)
-    {
-        $this->_currentUserDishes = $member->getDishes($this->id)[Dish::TYPE_PERSONAL];
-        $this->_commonDishes = $this->owner->getDishes($this->id, true)[Dish::TYPE_COMMON];
-        $this->_billMembers = $this->members;
     }
 
     private function getTotalAmount(): float
@@ -317,10 +325,18 @@ class Bill extends ActiveRecord implements BillInterface
 
     private function getPerPersonAmount(Member $member = null): float
     {
-        $commonAmount = $this->getCommonAmount();
-        $personalAmount = $this->getPersonalAmount($member);
-        $partOfCommonAmount = round($commonAmount / $this->getCountOfBillMembers());
-        return $personalAmount + $partOfCommonAmount;
+        $personal = $this->getPersonalAmount($member);
+        $common = 0;
+
+        foreach ($this->_commonDishes as $dish) {
+            $refused = RefusedDish::isRefused($dish->id, $member->id ?? $this->_currentUser->id);
+            if (is_null($refused)) $refused = false;
+            if (!$refused) {
+                $common += $dish->cost;
+            }
+        }
+
+        return $personal + $common;
     }
 
     private function getCommonAmount(): float
@@ -344,9 +360,5 @@ class Bill extends ActiveRecord implements BillInterface
             $amount += $dish->cost;
         }
         return $amount;
-    }
-    private function getCountOfBillMembers(): int
-    {
-        return count($this->_billMembers);
     }
 }

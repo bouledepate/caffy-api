@@ -4,6 +4,7 @@ namespace Bouledepate\CaffyApi\Models;
 
 use yii\db\ActiveRecord;
 use yii\db\Query;
+use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 
 /**
@@ -12,6 +13,7 @@ use yii\web\BadRequestHttpException;
  * @property string $title
  * @property string $type
  * @property int $cost
+ * @property bool $refused
  */
 class Dish extends ActiveRecord
 {
@@ -27,7 +29,7 @@ class Dish extends ActiveRecord
         return [
             [['title', 'cost', 'uuid', 'bill'], 'required'],
             [['title'], 'string'],
-            [['bill_member_id', 'common'], 'safe']
+            [['bill_member_id', 'common', 'refused'], 'safe']
         ];
     }
 
@@ -68,6 +70,23 @@ class Dish extends ActiveRecord
             throw new BadRequestHttpException("Передан некорректный пользовательский UUID");
         }
         return $user->id;
+    }
+
+    /**
+     * @throws StaleObjectException
+     * @throws \Throwable
+     */
+    public function toggleRefusedProperty(): void
+    {
+        $member = $this->getMemberId();
+        if ($this->type == self::TYPE_COMMON) {
+            $currentState = RefusedDish::isRefused($this->id, $member);
+            if (is_null($currentState)) {
+                RefusedDish::addNote($this->id, $member, true);
+            } else {
+                RefusedDish::updateNote($this->id, $member, !$currentState);
+            }
+        }
     }
 
     public static function types(): array
