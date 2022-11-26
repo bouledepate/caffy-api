@@ -274,10 +274,12 @@ class Bill extends ActiveRecord implements BillInterface
         if ($forHistory) {
             $result = [];
             foreach ($data as $datum) {
+                $refused = RefusedDish::isRefused($datum->id, $this->_currentUser->id);
                 $result[] = [
                     'id' => $datum->id,
                     'title' => $datum->title,
-                    'cost' => $datum->cost
+                    'cost' => $datum->cost,
+                    'refused' => $refused ?? false
                 ];
             }
             $data = $result;
